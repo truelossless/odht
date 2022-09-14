@@ -8,8 +8,8 @@ pub struct UnHashFn;
 
 impl HashFn for UnHashFn {
     #[inline]
-    fn hash(bytes: &[u8]) -> u32 {
+    fn hash(bytes: &[u8]) -> u64 {
         let len = bytes.len();
-        u32::from_le_bytes(bytes[len - 4..].try_into().unwrap())
+        u64::from_le_bytes(bytes[len - 8..].try_into().unwrap())
     }
 }

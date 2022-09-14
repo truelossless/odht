@@ -87,7 +87,6 @@ macro_rules! unlikely {
 }
 
 mod error;
-mod fxhash;
 mod memory_layout;
 mod raw_table;
 mod swisstable_group_query;
@@ -98,7 +97,6 @@ use memory_layout::Header;
 use std::borrow::{Borrow, BorrowMut};
 use swisstable_group_query::REFERENCE_GROUP_SIZE;
 
-pub use crate::fxhash::FxHashFn;
 pub use crate::unhash::UnHashFn;
 
 use crate::raw_table::{ByteArray, RawIter, RawTable, RawTableMut};
@@ -138,7 +136,7 @@ pub trait Config {
 /// This trait represents hash functions as used by HashTable and
 /// HashTableOwned.
 pub trait HashFn: Eq {
-    fn hash(bytes: &[u8]) -> u32;
+    fn hash(bytes: &[u8]) -> u64;
 }
 
 /// A [HashTableOwned] keeps the underlying data on the heap and
@@ -593,7 +591,7 @@ mod tests {
         type Key = u32;
         type Value = u32;
 
-        type H = FxHashFn;
+        type H = UnHashFn;
 
         fn encode_key(k: &Self::Key) -> Self::EncodedKey {
             k.to_le_bytes()
@@ -844,7 +842,7 @@ mod tests {
                         type Key = Key;
                         type Value = Value;
 
-                        type H = FxHashFn;
+                        type H = UnHashFn;
 
                         fn encode_key(k: &Self::Key) -> Self::EncodedKey {
                             *k

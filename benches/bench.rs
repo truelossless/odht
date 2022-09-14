@@ -2,7 +2,7 @@
 
 extern crate test;
 
-use odht::{Config, FxHashFn, HashTable, HashTableOwned};
+use odht::{Config, HashTable, HashTableOwned, UnHashFn};
 use rustc_hash::FxHashMap;
 
 #[repr(C)]
@@ -18,7 +18,7 @@ impl Config for FxConfig {
     type EncodedKey = [u8; 16];
     type EncodedValue = [u8; 4];
 
-    type H = FxHashFn;
+    type H = UnHashFn;
 
     #[inline]
     fn encode_key(k: &Self::Key) -> Self::EncodedKey {

@@ -72,7 +72,7 @@ impl<'a, K: ByteArray, V: ByteArray, H: HashFn> fmt::Debug for RawTable<'a, K, V
 
 pub(crate) type EntryMetadata = u8;
 
-type HashValue = u32;
+type HashValue = u64;
 
 #[inline]
 fn h1(h: HashValue) -> usize {
@@ -516,8 +516,9 @@ impl<const LEN: usize> ByteArray for [u8; LEN] {
 #[cfg(test)]
 #[rustfmt::skip]
 mod tests {
+    use crate::UnHashFn;
+
     use super::*;
-    use crate::FxHashFn;
 
     fn make_table<
         I: Iterator<Item = (K, V)> + ExactSizeIterator,
@@ -552,10 +553,10 @@ mod tests {
     fn stress() {
         let xs: Vec<[u8; 2]> = (0 ..= u16::MAX).map(|x| x.to_le_bytes()).collect();
 
-        let (mut metadata, mut data) = make_table::<_, _, _, FxHashFn>(xs.iter().map(|x| (*x, *x)));
+        let (mut metadata, mut data) = make_table::<_, _, _, UnHashFn>(xs.iter().map(|x| (*x, *x)));
 
         {
-            let table: RawTable<_, _, FxHashFn> = RawTable {
+            let table: RawTable<_, _, UnHashFn> = RawTable {
                 metadata: &metadata[..],
                 data: &data[..],
                 _hash_fn: PhantomData::default(),
@@ -568,7 +569,7 @@ mod tests {
 
         // overwrite all values
         {
-            let mut table: RawTableMut<_, _, FxHashFn> = RawTableMut {
+            let mut table: RawTableMut<_, _, UnHashFn> = RawTableMut {
                 metadata: &mut metadata[..],
                 data: &mut data[..],
                 _hash_fn: PhantomData::default(),
@@ -581,7 +582,7 @@ mod tests {
 
         // Check if we find the new expected values
         {
-            let table: RawTable<_, _, FxHashFn> = RawTable {
+            let table: RawTable<_, _, UnHashFn> = RawTable {
                 metadata: &metadata[..],
                 data: &data[..],
                 _hash_fn: PhantomData::default(),
